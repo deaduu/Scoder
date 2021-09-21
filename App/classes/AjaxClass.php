@@ -10,6 +10,39 @@ class AjaxClass extends MainClass
 
     public $data;
 
+    public function checkConnection()
+    {
+        return json_encode($this->connection());
+    }
+
+    public function createAndCheck()
+    {
+        $config = array(
+            'servername' => $this->data['servername'], // your host name  
+            'username' => $this->data['username'], // your user name  
+            'password' => $this->data['password'], // your password  
+            'db' => ($this->data['database']) ? $this->data['database'] : 'scoder', // your database name  
+        );
+        $db = ($this->data['database']) ? $this->data['database'] : 'scoder';
+
+        $fh = fopen('../App/classes/config.ini', "w");
+        if (!is_resource($fh)) {
+            return false;
+        }
+        foreach ($config as $key => $value) {
+            fwrite($fh, sprintf("%s = %s\n", $key, $value));
+        }
+        fclose($fh);
+
+        $obj = new MainClass;
+
+        if ($obj->connection() and !$obj->connection($db)) {
+            $obj->createDB($db);
+        }
+
+        return json_encode($obj->connection());
+    }
+
     public function projects()
     {
         $response = $this->datatable('scoder', 'projects', ['id', 'name'], $this->data);

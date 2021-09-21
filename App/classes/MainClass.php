@@ -47,4 +47,9 @@ class MainClass extends DbClass
             "aaData" => $projects
         );
     }
+
+    public function createDB($db)
+    {
+        $this->DB($db);
+    }
 }

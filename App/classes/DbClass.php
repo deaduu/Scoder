@@ -6,6 +6,8 @@ class DbClass
     private $password = ""; // your password  
     protected $db = "scoder"; // your database name  
 
+    protected $conn;
+
     function __construct()
     {
         $config = parse_ini_file('config.ini', false, INI_SCANNER_NORMAL);
@@ -13,112 +15,106 @@ class DbClass
         $this->username = $config['username']; // your user name   
         $this->password = $config['password']; // your password   
         $this->db = $config['db']; // your database name 
-    }
 
-
-    private function query($sql)
-    {
         try {
-            $conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
+            $this->conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
             // set the PDO error mode to exception
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            // use exec() because no results are returned
-            $conn->exec($sql);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             return "Connection failed: " . $e->getMessage();
         }
+    }
+
+    public function connection($db = NULL)
+    {
+        try {
+            if ($db) {
+                $this->conn = new PDO("mysql:host=$this->servername;dbname=" . $db, $this->username, $this->password);
+            } else {
+                $this->conn = new PDO("mysql:host=" . $this->servername, $this->username, $this->password);
+            }
+            // set the PDO error mode to exception
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+
+    private function query($sql, $params = NULL)
+    {
+        $statement = $this->conn->prepare($sql);
+        $statement->execute($params);
     }
 
     private function prepInsertQuery($sql, $params)
     {
-        try {
-            $conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
-            // set the PDO error mode to exception
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $statement = $this->conn->prepare($sql);
 
-            $statement = $conn->prepare($sql);
-
-            $statement->execute($params);
-            return $conn->lastInsertId();
-        } catch (PDOException $e) {
-            return "Connection failed: " . $e->getMessage();
-        }
+        $statement->execute($params);
+        return $this->conn->lastInsertId();
     }
 
     protected function rows($sql, $params = NULL)
     {
-        try {
-            $conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
-            // set the PDO error mode to exception
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $statement = $conn->prepare($sql);
-            if (strpos($sql, '?') !== false) {
-                $ques = true;
-            } else {
-                $ques = false;
-            }
-            if ($ques) {
-                $statement->execute($params);
-            } else {
-                // Bind values
-                if ($params) {
-                    foreach ($params as $key => $value) {
-                        if (gettype($value) == 'string') {
-                            $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
-                        } elseif (gettype($value) == 'integer') {
-                            $statement->bindValue(':' . $key, (int)$value, PDO::PARAM_INT);
-                        }
+        $statement = $this->conn->prepare($sql);
+        if (strpos($sql, '?') !== false) {
+            $ques = true;
+        } else {
+            $ques = false;
+        }
+        if ($ques) {
+            $statement->execute($params);
+        } else {
+            // Bind values
+            if ($params) {
+                foreach ($params as $key => $value) {
+                    if (gettype($value) == 'string') {
+                        $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
+                    } elseif (gettype($value) == 'integer') {
+                        $statement->bindValue(':' . $key, (int)$value, PDO::PARAM_INT);
                     }
                 }
-
-                $statement->execute();
             }
-            $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-            return $results;
-        } catch (PDOException $e) {
-            return "Connection failed: " . $e->getMessage();
+            $statement->execute();
         }
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $results;
     }
 
     protected function row($sql, $params = NULL)
     {
-        try {
-            $conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
-            // set the PDO error mode to exception
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $statement = $conn->prepare($sql);
-            if (strpos($sql, '?') !== false) {
-                $ques = true;
-            } else {
-                $ques = false;
-            }
+        $statement = $this->conn->prepare($sql);
+        if (strpos($sql, '?') !== false) {
+            $ques = true;
+        } else {
+            $ques = false;
+        }
+        // Bind values
+        if ($ques) {
+            $statement->execute($params);
+        } else {
             // Bind values
-            if ($ques) {
-                $statement->execute($params);
-            } else {
-                // Bind values
-                if ($params) {
-                    foreach ($params as $key => $value) {
-                        if (gettype($value) == 'string') {
-                            $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
-                        } elseif (gettype($value) == 'integer') {
-                            $statement->bindValue(':' . $key, (int)$value, PDO::PARAM_INT);
-                        }
+            if ($params) {
+                foreach ($params as $key => $value) {
+                    if (gettype($value) == 'string') {
+                        $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
+                    } elseif (gettype($value) == 'integer') {
+                        $statement->bindValue(':' . $key, (int)$value, PDO::PARAM_INT);
                     }
                 }
-
-                $statement->execute();
             }
-            $results = $statement->fetch(PDO::FETCH_ASSOC);
 
-            return $results;
-        } catch (PDOException $e) {
-            return "Connection failed: " . $e->getMessage();
+            $statement->execute();
         }
+        $results = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $results;
     }
 
     protected function DB($name)
