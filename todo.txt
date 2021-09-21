@@ -1,0 +1,2 @@
+first time setup in modal for user
+make where query more simple
