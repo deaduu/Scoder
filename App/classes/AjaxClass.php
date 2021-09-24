@@ -12,7 +12,13 @@ class AjaxClass extends MainClass
 
     public function checkConnection()
     {
-        return json_encode($this->connection());
+        return json_encode($this->connection(true));
+    }
+
+    public function scoderdata()
+    {
+        $data = file_get_contents('../plugins.json');
+        return $data;
     }
 
     public function createAndCheck()

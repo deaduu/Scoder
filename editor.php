@@ -58,12 +58,8 @@
 
                             <div class="row">
                                 <div class="col-md-2">
-                                    <div class="card card-body">
-                                        <?php foreach ($codes as $code) : ?>
-                                            <p>
-                                                <button class="btn btn-success" onclick="scoder('<?php echo $code['slug']; ?>','<?php echo $code['type']; ?>')"><?php echo $code['name']; ?></button>
-                                            </p>
-                                        <?php endforeach; ?>
+                                    <div class="card card-body" id="scoderdata">
+
                                     </div>
                                 </div>
                                 <div class="col-md-10">

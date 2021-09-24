@@ -29,7 +29,11 @@ class DbClass
     {
         try {
             if ($db) {
-                $this->conn = new PDO("mysql:host=$this->servername;dbname=" . $db, $this->username, $this->password);
+                if (gettype($db) == 'string') {
+                    $this->conn = new PDO("mysql:host=$this->servername;dbname=" . $db, $this->username, $this->password);
+                } else {
+                    $this->conn = new PDO("mysql:host=$this->servername;dbname=" . $this->db, $this->username, $this->password);
+                }
             } else {
                 $this->conn = new PDO("mysql:host=" . $this->servername, $this->username, $this->password);
             }

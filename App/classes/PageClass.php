@@ -20,7 +20,6 @@ class PageClass extends DbClass
 
     public function editor()
     {
-        $data['codes'] = $this->getRows('scoder', 'scoder');
-        return $data;
+        //
     }
 }

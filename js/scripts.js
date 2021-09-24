@@ -10,7 +10,12 @@ $(document).ready(() => {
     $('#dbform').submit((e) => {
         e.preventDefault();
         $.post('ajax/ajax.php', $('#dbform').serializeArray(), (res) => {
-            alert(res);
+            res = JSON.parse(res);
+            if (res) {
+                $('#dbModal').modal('toggle');
+            } else {
+                alert('Something went wrong');
+            }
         });
     });
 

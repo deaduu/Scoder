@@ -176,6 +176,21 @@
     function appendToCM(line, text) {
         editor.replaceRange(text, CodeMirror.Pos(line, 0));
     }
+
+    $(document).ready(() => {
+        $.post('./ajax/ajax.php', {
+            method: 'scoderdata'
+        }, (res) => {
+            res = JSON.parse(res);
+            $.each(res, (k, v) => {
+                $('#scoderdata').append(`
+                <p>
+                    <button class="btn btn-success" onclick="scoder('${v.slug}','${v.type}')">${v.name}</button>
+                </p>
+                `);
+            });
+        });
+    });
 </script>
 </body>
 

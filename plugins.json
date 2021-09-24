@@ -1,0 +1,17 @@
+[
+    {
+        "slug": "loginform",
+        "name": "Login Form",
+        "type": "textarea"
+    },
+    {
+        "slug": "loginformbootstrap",
+        "name": "Bootstrap login form",
+        "type": "textarea"
+    },
+    {
+        "slug": "datacall",
+        "name": "Database",
+        "type": "html"
+    }
+]

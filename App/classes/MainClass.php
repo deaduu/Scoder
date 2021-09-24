@@ -51,5 +51,17 @@ class MainClass extends DbClass
     public function createDB($db)
     {
         $this->DB($db);
+        $fields = array(
+            'name' => 'VARCHAR(255) NOT NULL',
+            'db' => 'VARCHAR(100) NOT NULL',
+        );
+        $this->table($db, 'projects', $fields, NULL);
+
+        // $fields = array(
+        //     'slug' => 'VARCHAR(255) NOT NULL',
+        //     'name' => 'VARCHAR(255) NOT NULL',
+        //     'type' => "ENUM('textarea','html') NOT NULL",
+        // );
+        // $this->table($db, 'scoder', $fields, NULL);
     }
 }
